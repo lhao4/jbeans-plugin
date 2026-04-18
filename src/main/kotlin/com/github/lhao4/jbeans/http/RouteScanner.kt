@@ -2,7 +2,9 @@ package com.github.lhao4.jbeans.http
 
 import com.github.lhao4.jbeans.psi.TypeDescriptor
 import com.github.lhao4.jbeans.psi.TypeResolver
+import com.intellij.openapi.diagnostic.Logger
 import com.intellij.openapi.module.ModuleUtilCore
+import com.intellij.openapi.progress.ProcessCanceledException
 import com.intellij.openapi.project.Project
 import com.intellij.psi.PsiAnnotation
 import com.intellij.psi.PsiClass
@@ -14,60 +16,67 @@ import com.intellij.psi.search.searches.AllClassesSearch
 
 class RouteScanner(private val project: Project) {
 
+    private val log = Logger.getInstance(RouteScanner::class.java)
     private val typeResolver = TypeResolver()
 
     fun scanRoutes(): List<RouteInfo> {
         val scope = GlobalSearchScope.projectScope(project)
         val results = mutableListOf<RouteInfo>()
-
         AllClassesSearch.search(scope, project).forEach { psiClass ->
-            if (!isController(psiClass)) return@forEach
-            val classPath = classMappingPath(psiClass)
-            val moduleName = ModuleUtilCore.findModuleForPsiElement(psiClass)?.name
-
-            for (method in psiClass.methods) {
-                if (method.isConstructor) continue
-                if (!method.hasModifierProperty(PsiModifier.PUBLIC)) continue
-
-                val (httpMethod, methodPath) = methodMapping(method) ?: continue
-                val fullPath = joinPaths(classPath, methodPath)
-
-                val pathVars = mutableListOf<String>()
-                val queryParams = mutableListOf<QueryParam>()
-                var requestBody: TypeDescriptor? = null
-
-                for (param in method.parameterList.parameters) {
-                    when {
-                        param.hasAnnotation(PATH_VARIABLE) -> {
-                            val name = annotationName(param, PATH_VARIABLE) ?: param.name
-                            pathVars += name
-                        }
-                        param.hasAnnotation(REQUEST_PARAM) -> {
-                            val name = annotationName(param, REQUEST_PARAM) ?: param.name
-                            val required = param.getAnnotation(REQUEST_PARAM)
-                                ?.findAttributeValue("required")?.text?.toBooleanStrictOrNull() ?: true
-                            queryParams += QueryParam(name, required)
-                        }
-                        param.hasAnnotation(REQUEST_BODY) -> {
-                            requestBody = typeResolver.resolve(param.type)
-                        }
-                    }
-                }
-
-                results += RouteInfo(
-                    httpMethod = httpMethod,
-                    path = fullPath,
-                    className = psiClass.name ?: continue,
-                    classFqn = psiClass.qualifiedName ?: continue,
-                    methodName = method.name,
-                    pathVariables = pathVars,
-                    queryParams = queryParams,
-                    requestBody = requestBody,
-                    moduleName = moduleName,
-                )
+            runCatching { scanClass(psiClass, results) }.onFailure { ex ->
+                if (ex is ProcessCanceledException) throw ex
+                log.warn("JBeans: skipping class ${psiClass.qualifiedName} during route scan", ex)
             }
         }
         return results
+    }
+
+    private fun scanClass(psiClass: PsiClass, results: MutableList<RouteInfo>) {
+        if (!isController(psiClass)) return
+        val classPath = classMappingPath(psiClass)
+        val moduleName = ModuleUtilCore.findModuleForPsiElement(psiClass)?.name
+
+        for (method in psiClass.methods) {
+            if (method.isConstructor) continue
+            if (!method.hasModifierProperty(PsiModifier.PUBLIC)) continue
+
+            val (httpMethod, methodPath) = methodMapping(method) ?: continue
+            val fullPath = joinPaths(classPath, methodPath)
+
+            val pathVars = mutableListOf<String>()
+            val queryParams = mutableListOf<QueryParam>()
+            var requestBody: TypeDescriptor? = null
+
+            for (param in method.parameterList.parameters) {
+                when {
+                    param.hasAnnotation(PATH_VARIABLE) -> {
+                        val name = annotationName(param, PATH_VARIABLE) ?: param.name
+                        pathVars += name
+                    }
+                    param.hasAnnotation(REQUEST_PARAM) -> {
+                        val name = annotationName(param, REQUEST_PARAM) ?: param.name
+                        val required = param.getAnnotation(REQUEST_PARAM)
+                            ?.findAttributeValue("required")?.text?.toBooleanStrictOrNull() ?: true
+                        queryParams += QueryParam(name, required)
+                    }
+                    param.hasAnnotation(REQUEST_BODY) -> {
+                        requestBody = typeResolver.resolve(param.type)
+                    }
+                }
+            }
+
+            results += RouteInfo(
+                httpMethod = httpMethod,
+                path = fullPath,
+                className = psiClass.name ?: return,
+                classFqn = psiClass.qualifiedName ?: return,
+                methodName = method.name,
+                pathVariables = pathVars,
+                queryParams = queryParams,
+                requestBody = requestBody,
+                moduleName = moduleName,
+            )
+        }
     }
 
     private fun isController(psiClass: PsiClass) =
