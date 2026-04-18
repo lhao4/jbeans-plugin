@@ -17,5 +17,6 @@
         <projectService serviceImplementation="com.github.lhao4.jbeans.service.MethodSearchService"/>
         <projectService serviceImplementation="com.github.lhao4.jbeans.service.InvokeOrchestrator"/>
         <projectService serviceImplementation="com.github.lhao4.jbeans.service.HistoryService"/>
+        <projectService serviceImplementation="com.github.lhao4.jbeans.http.HttpTestService"/>
     </extensions>
 </idea-plugin>
