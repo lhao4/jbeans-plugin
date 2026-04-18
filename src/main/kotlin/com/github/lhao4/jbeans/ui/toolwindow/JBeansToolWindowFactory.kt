@@ -11,6 +11,7 @@ class JBeansToolWindowFactory : ToolWindowFactory {
     override fun createToolWindowContent(project: Project, toolWindow: ToolWindow) {
         val root = JPanel(BorderLayout())
         root.add(ProcessSelectorPanel(project), BorderLayout.NORTH)
+        root.add(MethodSearchPanel(project), BorderLayout.CENTER)
 
         val content = ContentFactory.getInstance().createContent(root, "", false)
         toolWindow.contentManager.addContent(content)
