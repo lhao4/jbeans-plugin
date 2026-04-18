@@ -17,13 +17,21 @@ class JBeansToolWindowFactory : ToolWindowFactory {
         val methodSearch = MethodSearchPanel(project)
         methodSearch.onMethodSelected = { invokePanel.setMethod(it) }
 
+        val historyPanel = HistoryPanel(project)
+        historyPanel.onReplay = { invokePanel.setFromHistory(it) }
+
+        val leftSplit = OnePixelSplitter(true, 0.55f).apply {
+            firstComponent = methodSearch
+            secondComponent = historyPanel
+        }
+
         val rightSplit = OnePixelSplitter(true, 0.55f).apply {
             firstComponent = invokePanel
             secondComponent = resultPanel
         }
 
         val mainSplit = OnePixelSplitter(false, 0.35f).apply {
-            firstComponent = methodSearch
+            firstComponent = leftSplit
             secondComponent = rightSplit
         }
 

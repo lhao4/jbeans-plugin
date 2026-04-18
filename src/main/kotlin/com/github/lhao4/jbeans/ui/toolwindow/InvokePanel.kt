@@ -1,7 +1,9 @@
 package com.github.lhao4.jbeans.ui.toolwindow
 
+import com.github.lhao4.jbeans.history.HistoryRecord
 import com.github.lhao4.jbeans.psi.MethodMeta
 import com.github.lhao4.jbeans.psi.ParamGenerator
+import com.github.lhao4.jbeans.service.HistoryService
 import com.github.lhao4.jbeans.service.InvokeOrchestrator
 import com.intellij.openapi.application.ApplicationManager
 import com.intellij.openapi.project.Project
@@ -14,6 +16,7 @@ import javax.swing.*
 class InvokePanel(private val project: Project) : JPanel(BorderLayout()) {
 
     private val orchestrator get() = project.getService(InvokeOrchestrator::class.java)
+    private val historyService get() = project.getService(HistoryService::class.java)
 
     private val methodLabel = JLabel("← Select a method").apply {
         border = JBUI.Borders.empty(4, 6)
@@ -54,6 +57,14 @@ class InvokePanel(private val project: Project) : JPanel(BorderLayout()) {
         paramsEditor.caretPosition = 0
     }
 
+    fun setFromHistory(record: HistoryRecord) {
+        currentMeta = record.toMethodMeta()
+        methodLabel.text = record.signature
+        invokeButton.isEnabled = true
+        paramsEditor.text = record.argsJson
+        paramsEditor.caretPosition = 0
+    }
+
     private fun doInvoke() {
         val meta = currentMeta ?: return
         val json = paramsEditor.text.trim()
@@ -62,11 +73,17 @@ class InvokePanel(private val project: Project) : JPanel(BorderLayout()) {
         onResult?.invoke("Invoking ${meta.signature}…")
 
         ApplicationManager.getApplication().executeOnPooledThread {
+            val start = System.currentTimeMillis()
             val result = orchestrator.invoke(meta, json)
+            val durationMs = System.currentTimeMillis() - start
+            val resultText = result.getOrElse { "Error: ${it.message}" }
+            historyService.add(
+                HistoryRecord.from(meta, json, resultText, result.isSuccess, durationMs)
+            )
             SwingUtilities.invokeLater {
                 invokeButton.isEnabled = true
                 invokeButton.text = "Invoke"
-                onResult?.invoke(result.getOrElse { "Error: ${it.message}" })
+                onResult?.invoke(resultText)
             }
         }
     }
