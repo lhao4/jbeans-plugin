@@ -2,7 +2,45 @@
     <id>com.github.lhao4.jbeans</id>
     <name>JBeans</name>
     <vendor email="" url="https://github.com/lhao4">lhao4</vendor>
-    <description>Invoke any Spring Bean method directly from your IDE, without writing a single line of test code.</description>
+    <description><![CDATA[
+        <p>Invoke any Spring Bean method directly from your IDE — no test code, no curl, no Postman.</p>
+
+        <p>JBeans uses the JVM Attach API to connect to your running Spring Boot process, injects a lightweight
+        in-memory agent, and lets you call any Bean method, static utility method, or HTTP endpoint through a
+        clean tool window UI.</p>
+
+        <h3>Features</h3>
+        <ul>
+            <li><b>Bean Invocation</b> — Browse Spring Beans by name or class, edit JSON parameters, invoke,
+                and see the serialized result instantly.</li>
+            <li><b>Static Method Support</b> — Call any public static method on any class in your project,
+                with the same JSON parameter editor.</li>
+            <li><b>HTTP Testing</b> — Scan <code>@RequestMapping</code> routes; auto-fill path variables,
+                query params, and request body; send requests and view the raw response.</li>
+            <li><b>Call History</b> — Every invocation is persisted across IDE restarts; replay or star
+                entries for quick access.</li>
+            <li><b>Zero Config</b> — No agents to pre-install, no changes to your application code or
+                build scripts.</li>
+        </ul>
+
+        <h3>Requirements</h3>
+        <ul>
+            <li>IntelliJ IDEA 2023.2 or later</li>
+            <li>Java 8+ target JVM</li>
+            <li>Spring Boot application running locally (any version)</li>
+        </ul>
+    ]]></description>
+
+    <change-notes><![CDATA[
+        <b>0.1.0</b> — Initial release
+        <ul>
+            <li>Bean method invocation via JVM Attach + in-memory agent</li>
+            <li>Static method invocation support</li>
+            <li>HTTP route testing with auto-filled parameters</li>
+            <li>Call history with star and replay</li>
+            <li>JSON validation and cancel support</li>
+        </ul>
+    ]]></change-notes>
 
     <depends>com.intellij.modules.platform</depends>
     <depends>com.intellij.modules.java</depends>
