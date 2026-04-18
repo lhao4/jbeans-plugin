@@ -15,6 +15,7 @@ import java.awt.Color
 import java.awt.FlowLayout
 import javax.swing.JButton
 import javax.swing.JComboBox
+import javax.swing.JLabel
 import javax.swing.JPanel
 
 class ProcessSelectorPanel(private val project: Project) : JPanel(BorderLayout()) {
@@ -34,21 +35,28 @@ class ProcessSelectorPanel(private val project: Project) : JPanel(BorderLayout()
 
         val baseRenderer = javax.swing.DefaultListCellRenderer()
         processCombo.setRenderer { list, value, index, selected, focused ->
-            baseRenderer.getListCellRendererComponent(list, value?.displayName ?: "", index, selected, focused)
+            val label = baseRenderer.getListCellRendererComponent(
+                list,
+                value?.let { "${it.mainClass}  (PID: ${it.pid})" } ?: "",
+                index, selected, focused
+            ) as JLabel
+            label.toolTipText = value?.displayName
+            label
         }
 
         connectButton.addActionListener { onConnectClick() }
 
-        val left = JPanel(FlowLayout(FlowLayout.LEFT, 4, 0)).apply {
-            add(JBLabel("进程"))
-            add(processCombo)
-        }
         val right = JPanel(FlowLayout(FlowLayout.RIGHT, 4, 0)).apply {
             add(statusLabel)
             add(connectButton)
         }
 
-        add(left, BorderLayout.CENTER)
+        val center = JPanel(BorderLayout(4, 0)).apply {
+            add(JBLabel("进程"), BorderLayout.WEST)
+            add(processCombo, BorderLayout.CENTER)
+        }
+
+        add(center, BorderLayout.CENTER)
         add(right, BorderLayout.EAST)
 
         refresh()
