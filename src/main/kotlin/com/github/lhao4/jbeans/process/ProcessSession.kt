@@ -31,5 +31,10 @@ class ProcessSession(val pid: Int) {
     fun getProperty(key: String): String? =
         runCatching { vm?.systemProperties?.getProperty(key) }.getOrNull()
 
+    fun loadAgent(agentPath: String, options: String): Result<Unit> = runCatching {
+        requireNotNull(vm) { "Not connected" }
+        vm!!.loadAgent(agentPath, options)
+    }
+
     fun isAlive(): Boolean = ProcessHandle.of(pid.toLong()).map { it.isAlive }.orElse(false)
 }
