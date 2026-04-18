@@ -5,10 +5,13 @@ import java.net.URLDecoder;
 
 class InvokeHandler {
 
-    // query: bean=...&method=...&paramNames=a,b&paramTypes=A,B
+    // query: bean=...&method=...&paramNames=a,b&paramTypes=A,B[&static=true]
     // body:  {"a":..., "b":...}
     static String handle(String query, String body) {
         try {
+            if ("true".equals(param(query, "static"))) {
+                return StaticInvokeHandler.handle(query, body);
+            }
             String beanFqn = param(query, "bean");
             String methodName = param(query, "method");
             String rawParamNames = param(query, "paramNames");
@@ -47,7 +50,7 @@ class InvokeHandler {
         }
     }
 
-    private static String param(String query, String key) throws Exception {
+    static String param(String query, String key) throws Exception {
         for (String pair : query.split("&")) {
             int eq = pair.indexOf('=');
             if (eq < 0) continue;
