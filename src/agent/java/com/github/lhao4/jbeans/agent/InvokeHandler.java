@@ -22,7 +22,10 @@ class InvokeHandler {
             String resultJson = serialize(ctx.getClass().getClassLoader(), result);
             return "{\"success\":true,\"result\":" + resultJson + "}";
         } catch (Exception e) {
-            return "{\"success\":false,\"error\":\"" + AgentServer.escape(fullMsg(e)) + "\"}";
+            Throwable root = rootCause(e);
+            String exType = root.getClass().getSimpleName();
+            return "{\"success\":false,\"error\":\"" + AgentServer.escape(fullMsg(e)) +
+                    "\",\"exceptionType\":\"" + AgentServer.escape(exType) + "\"}";
         }
     }
 
@@ -52,6 +55,12 @@ class InvokeHandler {
             if (k.equals(key)) return URLDecoder.decode(pair.substring(eq + 1), "UTF-8");
         }
         return "";
+    }
+
+    private static Throwable rootCause(Throwable t) {
+        Throwable cur = t;
+        while (cur.getCause() != null) cur = cur.getCause();
+        return cur;
     }
 
     private static String fullMsg(Throwable t) {
