@@ -27,8 +27,8 @@ class AgentServer implements Runnable {
         }
     }
 
-    private void handle(Socket socket) {
-        try (socket) {
+    private void handle(Socket incoming) {
+        try (Socket socket = incoming) {
             InputStream in = socket.getInputStream();
             OutputStream out = socket.getOutputStream();
 
@@ -79,7 +79,7 @@ class AgentServer implements Runnable {
             sendResponse(out, 200, response);
         } catch (Exception e) {
             try {
-                OutputStream out = socket.getOutputStream();
+                OutputStream out = incoming.getOutputStream();
                 sendResponse(out, 500, "{\"success\":false,\"error\":\"" + escape(e.getMessage()) + "\"}");
             } catch (Exception ignored) {}
         }

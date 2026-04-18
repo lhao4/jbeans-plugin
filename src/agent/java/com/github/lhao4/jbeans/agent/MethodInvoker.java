@@ -95,17 +95,15 @@ class MethodInvoker {
     }
 
     private static Class<?> resolveOne(String name, ClassLoader cl) throws ClassNotFoundException {
-        return switch (name) {
-            case "int" -> int.class;
-            case "long" -> long.class;
-            case "boolean" -> boolean.class;
-            case "double" -> double.class;
-            case "float" -> float.class;
-            case "byte" -> byte.class;
-            case "short" -> short.class;
-            case "char" -> char.class;
-            case "void" -> void.class;
-            default -> cl.loadClass(name);
-        };
+        if ("int".equals(name))     return int.class;
+        if ("long".equals(name))    return long.class;
+        if ("boolean".equals(name)) return boolean.class;
+        if ("double".equals(name))  return double.class;
+        if ("float".equals(name))   return float.class;
+        if ("byte".equals(name))    return byte.class;
+        if ("short".equals(name))   return short.class;
+        if ("char".equals(name))    return char.class;
+        if ("void".equals(name))    return void.class;
+        return cl.loadClass(name);
     }
 }

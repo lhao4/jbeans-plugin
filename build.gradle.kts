@@ -25,6 +25,11 @@ sourceSets {
     }
 }
 
+// Agent must be compiled to Java 8 bytecode — it runs inside the target JVM
+tasks.named<JavaCompile>("compileAgentJava") {
+    options.release.set(8)
+}
+
 // Build a minimal agent JAR with only agent classes + Agent-Class manifest entry
 val agentJar by tasks.registering(Jar::class) {
     dependsOn(tasks.named("compileAgentJava"))
