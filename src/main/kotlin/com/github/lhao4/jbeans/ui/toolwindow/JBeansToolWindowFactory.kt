@@ -13,6 +13,9 @@ class JBeansToolWindowFactory : ToolWindowFactory {
         val invokePanel = InvokePanel(project)
         val resultPanel = ResultPanel()
         invokePanel.onResult = { resultPanel.showResult(it) }
+        invokePanel.onStatus = { success, durationMs, cancelled ->
+            resultPanel.showStatus(success, durationMs, cancelled)
+        }
 
         val methodSearch = MethodSearchPanel(project)
         methodSearch.onMethodSelected = { invokePanel.setMethod(it) }
