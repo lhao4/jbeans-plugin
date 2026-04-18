@@ -1,3 +1,32 @@
 package com.github.lhao4.jbeans.process
 
-class ProcessSession(val pid: Int)
+import com.sun.tools.attach.VirtualMachine
+
+class ProcessSession(val pid: Int) {
+
+    enum class State { DISCONNECTED, CONNECTING, CONNECTED, FAILED }
+
+    @Volatile
+    var state: State = State.DISCONNECTED
+        private set
+
+    private var vm: VirtualMachine? = null
+
+    fun connect(): Result<Unit> {
+        state = State.CONNECTING
+        return runCatching {
+            vm = VirtualMachine.attach(pid.toString())
+            state = State.CONNECTED
+        }.onFailure {
+            state = State.FAILED
+        }
+    }
+
+    fun disconnect() {
+        runCatching { vm?.detach() }
+        vm = null
+        state = State.DISCONNECTED
+    }
+
+    fun isAlive(): Boolean = ProcessHandle.of(pid.toLong()).map { it.isAlive }.orElse(false)
+}
