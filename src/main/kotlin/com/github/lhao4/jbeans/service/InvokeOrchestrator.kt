@@ -54,6 +54,8 @@ class InvokeOrchestrator(private val project: Project) : Disposable {
 
     private fun findFreePort(): Int = ServerSocket(0).use { it.localPort }
 
+    fun cancelInvoke() { connection?.cancel() }
+
     override fun dispose() {
         connection = null
     }
