@@ -25,6 +25,15 @@ class InvokeOrchestrator(private val project: Project) : Disposable {
         }
     }
 
+    fun invokeStatic(meta: MethodMeta, userJson: String): Result<String> {
+        processManager.currentSession()
+            ?: return Result.failure(Exception("No active process session. Please connect to a Spring Boot process first."))
+
+        return ensureAgent().mapCatching { conn ->
+            BeanInvoker.invokeStatic(conn, meta, userJson).getOrThrow()
+        }
+    }
+
     private fun ensureAgent(): Result<AgentConnection> {
         val existing = connection
         if (existing != null && existing.ping()) return Result.success(existing)
