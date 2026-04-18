@@ -18,3 +18,7 @@ Your IDE  ──(JVM Attach)──▶  Running Spring Process
 ```
 
 The agent lives only in memory and leaves no trace after the process exits.
+
+## License
+
+[MIT](LICENSE)
