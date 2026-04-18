@@ -5,6 +5,10 @@ import java.net.URL
 
 class AgentConnection(val host: String, val port: Int) {
 
+    @Volatile private var activeConn: HttpURLConnection? = null
+
+    fun cancel() { activeConn?.disconnect() }
+
     fun ping(): Boolean = runCatching {
         val conn = URL("http://$host:$port/ping").openConnection() as HttpURLConnection
         conn.connectTimeout = 500
@@ -15,6 +19,7 @@ class AgentConnection(val host: String, val port: Int) {
 
     fun invoke(query: String, argsJson: String): Result<String> = runCatching {
         val conn = URL("http://$host:$port/invoke?$query").openConnection() as HttpURLConnection
+        activeConn = conn
         conn.connectTimeout = 10_000
         conn.readTimeout = 30_000
         conn.requestMethod = "POST"
@@ -27,6 +32,7 @@ class AgentConnection(val host: String, val port: Int) {
             if (conn.responseCode != 200) error("Agent HTTP ${conn.responseCode}")
             conn.inputStream.bufferedReader().readText()
         } finally {
+            activeConn = null
             conn.disconnect()
         }
     }
