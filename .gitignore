@@ -10,3 +10,6 @@ out/
 
 # IntelliJ Platform Plugin
 .intellijPlatform/
+
+# AI
+.claude/
