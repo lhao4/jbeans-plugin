@@ -5,9 +5,10 @@ import com.github.lhao4.jbeans.process.JvmScanner
 import com.github.lhao4.jbeans.process.ProcessSession
 import com.github.lhao4.jbeans.process.ProcessSession.State
 import com.intellij.openapi.application.ApplicationManager
+import com.intellij.openapi.diagnostic.Logger
 import com.intellij.openapi.project.Project
 import com.intellij.ui.components.JBLabel
-import com.intellij.util.ui.JBColor
+import com.intellij.ui.JBColor
 import com.intellij.util.ui.JBUI
 import java.awt.BorderLayout
 import java.awt.Color
@@ -18,6 +19,7 @@ import javax.swing.JPanel
 
 class ProcessSelectorPanel(private val project: Project) : JPanel(BorderLayout()) {
 
+    private val log = Logger.getInstance(ProcessSelectorPanel::class.java)
     private val scanner = JvmScanner()
     private val processCombo = JComboBox<JvmProcessInfo>()
     private val statusLabel = JBLabel("● 未连接")
@@ -54,7 +56,7 @@ class ProcessSelectorPanel(private val project: Project) : JPanel(BorderLayout()
 
     fun refresh() {
         ApplicationManager.getApplication().executeOnPooledThread {
-            val processes = scanner.scanAll().filter { scanner.isSpringBootProcess(it) }
+            val processes = scanner.scanAll()
             ApplicationManager.getApplication().invokeLater {
                 val selected = processCombo.selectedItem as? JvmProcessInfo
                 processCombo.removeAllItems()
@@ -92,6 +94,7 @@ class ProcessSelectorPanel(private val project: Project) : JPanel(BorderLayout()
                     updateStatus(State.CONNECTED)
                     connectButton.text = "断开"
                 } else {
+                    log.warn("attach failed pid=${info.pid}", result.exceptionOrNull())
                     updateStatus(State.FAILED)
                     connectButton.text = "连接"
                 }
