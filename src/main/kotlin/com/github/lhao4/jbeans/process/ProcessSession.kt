@@ -28,5 +28,8 @@ class ProcessSession(val pid: Int) {
         state = State.DISCONNECTED
     }
 
+    fun getProperty(key: String): String? =
+        runCatching { vm?.systemProperties?.getProperty(key) }.getOrNull()
+
     fun isAlive(): Boolean = ProcessHandle.of(pid.toLong()).map { it.isAlive }.orElse(false)
 }
