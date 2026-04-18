@@ -42,6 +42,8 @@ class InvokePanel(private val project: Project) : JPanel(BorderLayout()) {
 
     var onResult: ((String) -> Unit)? = null
     var onStatus: ((success: Boolean, durationMs: Long, cancelled: Boolean) -> Unit)? = null
+    var invokeAction: ((MethodMeta, String) -> Result<String>)? = null
+    var cancelAction: (() -> Unit)? = null
 
     private var currentMeta: MethodMeta? = null
     @Volatile private var cancelled = false
@@ -97,9 +99,11 @@ class InvokePanel(private val project: Project) : JPanel(BorderLayout()) {
         setInvoking(true)
         onResult?.invoke("Invoking ${meta.signature}…")
 
+        val action = invokeAction ?: { m, j -> orchestrator.invoke(m, j) }
+
         ApplicationManager.getApplication().executeOnPooledThread {
             val start = System.currentTimeMillis()
-            val result = orchestrator.invoke(meta, json)
+            val result = action(meta, json)
             val durationMs = System.currentTimeMillis() - start
             val wasCancelled = cancelled
 
@@ -125,7 +129,7 @@ class InvokePanel(private val project: Project) : JPanel(BorderLayout()) {
 
     private fun doCancel() {
         cancelled = true
-        orchestrator.cancelInvoke()
+        (cancelAction ?: { orchestrator.cancelInvoke() }).invoke()
         setInvoking(false)
         onResult?.invoke("Cancelled.")
         onStatus?.invoke(false, 0L, true)

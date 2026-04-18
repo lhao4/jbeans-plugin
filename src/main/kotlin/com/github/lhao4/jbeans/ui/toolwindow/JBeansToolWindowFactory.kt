@@ -22,6 +22,7 @@ class JBeansToolWindowFactory : ToolWindowFactory {
     private fun buildTabs(project: Project): JTabbedPane {
         val tabs = JTabbedPane(JTabbedPane.TOP)
         tabs.addTab("Beans", buildBeansTab(project))
+        tabs.addTab("Static", buildStaticTab(project))
         tabs.addTab("HTTP", buildHttpTab(project))
         return tabs
     }
@@ -52,6 +53,31 @@ class JBeansToolWindowFactory : ToolWindowFactory {
             add(OnePixelSplitter(false, 0.35f).apply {
                 firstComponent = leftSplit
                 secondComponent = rightSplit
+            })
+        }
+    }
+
+    private fun buildStaticTab(project: Project): JPanel {
+        val orchestrator = project.getService(com.github.lhao4.jbeans.service.InvokeOrchestrator::class.java)
+        val invokePanel = InvokePanel(project)
+        val resultPanel = ResultPanel()
+        invokePanel.invokeAction = { meta, json -> orchestrator.invokeStatic(meta, json) }
+        invokePanel.cancelAction = { orchestrator.cancelInvoke() }
+        invokePanel.onResult = { resultPanel.showResult(it) }
+        invokePanel.onStatus = { success, durationMs, cancelled ->
+            resultPanel.showStatus(success, durationMs, cancelled)
+        }
+
+        val staticSearch = StaticSearchPanel(project)
+        staticSearch.onMethodSelected = { invokePanel.setMethod(it) }
+
+        return JPanel(BorderLayout()).apply {
+            add(OnePixelSplitter(false, 0.35f).apply {
+                firstComponent = staticSearch
+                secondComponent = OnePixelSplitter(true, 0.55f).apply {
+                    firstComponent = invokePanel
+                    secondComponent = resultPanel
+                }
             })
         }
     }

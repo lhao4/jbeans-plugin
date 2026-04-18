@@ -15,6 +15,12 @@ object BeanInvoker {
         return conn.invoke(query, argsJson)
     }
 
+    fun invokeStatic(conn: AgentConnection, meta: MethodMeta, userJson: String): Result<String> {
+        val query = buildQuery(meta) + "&static=true"
+        val argsJson = normalizeArgs(meta, userJson)
+        return conn.invoke(query, argsJson)
+    }
+
     private fun buildQuery(meta: MethodMeta): String {
         fun enc(s: String) = URLEncoder.encode(s, "UTF-8")
         val paramNames = meta.paramNames.joinToString(",") { enc(it) }
