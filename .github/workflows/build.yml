@@ -73,5 +73,8 @@ jobs:
           key: verify-${{ hashFiles('**/*.gradle.kts', '**/gradle-wrapper.properties') }}
           restore-keys: verify-
 
+      - name: Grant execute permission
+        run: chmod +x gradlew
+
       - name: Run Plugin Verifier
         run: ./gradlew verifyPlugin --no-daemon
