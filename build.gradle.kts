@@ -61,4 +61,9 @@ intellijPlatform {
             untilBuild = providers.gradleProperty("pluginUntilBuild")
         }
     }
+    pluginVerification {
+        ides {
+            recommended()
+        }
+    }
 }
