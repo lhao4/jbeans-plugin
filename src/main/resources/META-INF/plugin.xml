@@ -1,0 +1,19 @@
+<idea-plugin>
+    <id>com.github.lhao4.jbeans</id>
+    <name>JBeans</name>
+    <vendor email="" url="https://github.com/lhao4">lhao4</vendor>
+    <description>Invoke any Spring Bean method directly from your IDE, without writing a single line of test code.</description>
+
+    <depends>com.intellij.modules.platform</depends>
+    <depends>com.intellij.modules.java</depends>
+
+    <extensions defaultExtensionNs="com.intellij">
+        <toolWindow id="JBeans"
+                    anchor="right"
+                    factoryClass="com.github.lhao4.jbeans.ui.toolwindow.JBeansToolWindowFactory"
+                    icon="/icons/pluginIcon.svg"/>
+
+        <projectService serviceImplementation="com.github.lhao4.jbeans.service.ProcessManager"/>
+        <projectService serviceImplementation="com.github.lhao4.jbeans.service.MethodSearchService"/>
+    </extensions>
+</idea-plugin>
