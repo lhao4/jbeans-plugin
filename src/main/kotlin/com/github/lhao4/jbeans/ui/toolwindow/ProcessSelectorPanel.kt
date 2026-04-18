@@ -30,6 +30,13 @@ class ProcessSelectorPanel(private val project: Project) : JPanel(BorderLayout()
 
     var onSessionChanged: ((ProcessSession?) -> Unit)? = null
 
+    fun onProcessDied() {
+        session = null
+        connectButton.text = "连接"
+        connectButton.isEnabled = true
+        updateStatus(State.DISCONNECTED)
+    }
+
     init {
         border = JBUI.Borders.empty(4, 8)
 

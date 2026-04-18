@@ -1,5 +1,6 @@
 package com.github.lhao4.jbeans.ui.toolwindow
 
+import com.github.lhao4.jbeans.service.ProcessManager
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.wm.ToolWindow
 import com.intellij.openapi.wm.ToolWindowFactory
@@ -11,8 +12,13 @@ import javax.swing.JTabbedPane
 
 class JBeansToolWindowFactory : ToolWindowFactory {
     override fun createToolWindowContent(project: Project, toolWindow: ToolWindow) {
+        val processManager = project.getService(ProcessManager::class.java)
+        val processSelector = ProcessSelectorPanel(project)
+        processSelector.onSessionChanged = { processManager.setSession(it) }
+        processManager.onMonitorDisconnect = { processSelector.onProcessDied() }
+
         val root = JPanel(BorderLayout())
-        root.add(ProcessSelectorPanel(project), BorderLayout.NORTH)
+        root.add(processSelector, BorderLayout.NORTH)
         root.add(buildTabs(project), BorderLayout.CENTER)
 
         val content = ContentFactory.getInstance().createContent(root, "", false)
