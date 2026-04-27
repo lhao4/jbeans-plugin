@@ -1,3 +1,4 @@
 rootProject.name = "jbeans-plugin"
 
-include("agent")
+include("jbeans-plugin")
+include("jbeans-agent")
