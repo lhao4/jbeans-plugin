@@ -23,9 +23,16 @@ tasks.withType<KotlinCompile> {
     }
 }
 
+val platformType = providers.gradleProperty("platformType").get().uppercase()
+val platformVersion = providers.gradleProperty("platformVersion")
+
 dependencies {
     intellijPlatform {
-        intellijIdeaCommunity(providers.gradleProperty("platformVersion"))
+        when (platformType) {
+            "IC" -> intellijIdeaCommunity(platformVersion)
+            "IU" -> intellijIdeaUltimate(platformVersion)
+            else -> error("Unsupported platformType: $platformType. Expected IC or IU.")
+        }
         bundledPlugin("com.intellij.java")
     }
 }

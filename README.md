@@ -98,12 +98,12 @@ com.example.order.OrderService#createOrder
 
 ### IDEA 版本
 
-- IntelliJ IDEA 2022.3 及以上
+- IntelliJ IDEA 2022.3 至 2025.2.x
 
 当前插件配置的兼容范围来自 `gradle.properties`：
 
 - `since-build=223`
-- `until-build=253.*`
+- `until-build=252.*`
 
 ### 目标应用要求
 
@@ -224,9 +224,9 @@ jbeans-plugin/
 仓库已经配置了两条 GitHub Actions 流程：
 
 - [`.github/workflows/build.yml`](.github/workflows/build.yml)
-  每次推送到 `main` 或发起 PR 时构建插件，并上传 ZIP artifact
+  在 `push main` 和 `pull_request -> main` 时运行轻量 CI，只执行插件打包和工程配置校验；仅 `push main` 上传 ZIP artifact
 - [`.github/workflows/release.yml`](.github/workflows/release.yml)
-  每次推送形如 `v0.0.2` 的 tag 时，自动构建插件并发布到 GitHub Releases
+  在推送形如 `v0.0.2` 的 tag 时执行正式发布流程，额外运行 `verifyPlugin` 兼容性校验，并自动发布到 GitHub Releases
 
 发布示例：
 
