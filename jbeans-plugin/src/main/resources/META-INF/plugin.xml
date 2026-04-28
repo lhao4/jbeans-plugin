@@ -3,32 +3,32 @@
     <name>JBeans</name>
     <vendor email="" url="https://github.com/lhao4">lhao4</vendor>
     <description><![CDATA[
-        <p>Invoke Spring Bean, service implementation, static, and ordinary Java methods directly from your IDE — no test code, no curl, no Postman.</p>
+        <p>JBeans 是一个用于本地 Java / Spring 调试的 IntelliJ IDEA 插件，支持在 IDEA 中直接连接本机运行中的应用进程，并调用目标 Bean 方法进行验证，无需额外编写测试代码、调试入口或临时 Controller。</p>
 
-        <p>JBeans uses the JVM Attach API to connect to your running Spring Boot process, injects a lightweight
-        in-memory agent, and lets you call any Bean method, static utility method, or HTTP endpoint through a
-        clean tool window UI.</p>
+        <p>插件通过 JVM Attach API 动态注入轻量 Agent，在目标进程内获取 Spring ApplicationContext，解析方法参数并执行反射调用，再将结果回传到 IDEA 工具窗口中展示。</p>
 
-        <h3>Features</h3>
+        <h3>当前功能</h3>
         <ul>
-            <li><b>Bean Invocation</b> — Browse Spring Beans by name or class, edit JSON parameters, invoke,
-                and see the serialized result instantly.</li>
-            <li><b>Universal Invocation</b> — Call Spring Bean methods, service implementations,
-                ordinary no-arg classes, and public static methods,
-                with the same JSON parameter editor.</li>
-            <li><b>HTTP Testing</b> — Scan <code>@RequestMapping</code> routes; auto-fill path variables,
-                query params, and request body; send requests and view the raw response.</li>
-            <li><b>Call History</b> — Every invocation is persisted across IDE restarts; replay or star
-                entries for quick access.</li>
-            <li><b>Zero Config</b> — No agents to pre-install, no changes to your application code or
-                build scripts.</li>
+            <li><b>进程连接</b>：扫描本机 Java 进程，选择目标 PID 后一键连接，并自动做健康检查。</li>
+            <li><b>服务发现</b>：自动扫描 Dubbo 暴露服务，在左侧树中展示接口及方法列表。</li>
+            <li><b>Bean 方法调用</b>：支持手动输入 <code>类全限定名#方法名</code>，直接定位任意 Spring Bean 方法。</li>
+            <li><b>参数模板生成</b>：基于运行时反射和 IDEA PSI 自动生成 JSON 参数模板，减少手工拼装入参。</li>
+            <li><b>结果展示</b>：展示格式化结果、执行耗时、异常消息和堆栈信息。</li>
+            <li><b>零业务侵入</b>：无需修改应用代码、无需预置 javaagent、无需额外发布调试接口。</li>
         </ul>
 
-        <h3>Requirements</h3>
+        <h3>适用场景</h3>
         <ul>
-            <li>IntelliJ IDEA 2022.3 through 2025.x</li>
-            <li>Target JVM: JDK 8 through 21</li>
-            <li>Spring Boot applications running locally, including common 2.x / 3.x generation stacks</li>
+            <li>本地快速验证 Service / Manager / Facade 方法</li>
+            <li>调试 Dubbo 服务实现</li>
+            <li>对复杂 DTO 入参做一次性调用测试</li>
+        </ul>
+
+        <h3>环境要求</h3>
+        <ul>
+            <li>IntelliJ IDEA 2022.3 及以上</li>
+            <li>目标 JVM 版本：Java 8 及以上</li>
+            <li>目标应用需在本机运行，且 Spring ApplicationContext 已初始化完成</li>
         </ul>
     ]]></description>
 

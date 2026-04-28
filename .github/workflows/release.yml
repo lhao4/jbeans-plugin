@@ -1,0 +1,56 @@
+name: Release Plugin
+
+on:
+  push:
+    tags:
+      - 'v*'
+
+permissions:
+  contents: write
+
+jobs:
+  release:
+    name: Build and release plugin ZIP
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up JDK 17
+        uses: actions/setup-java@v4
+        with:
+          java-version: '17'
+          distribution: 'temurin'
+
+      - name: Grant execute permission
+        run: chmod +x gradlew
+
+      - name: Derive plugin version from tag
+        id: version
+        run: echo "plugin_version=${GITHUB_REF_NAME#v}" >> "$GITHUB_OUTPUT"
+
+      - name: Build plugin ZIP
+        run: ./gradlew :jbeans-plugin:buildPlugin :jbeans-plugin:verifyPluginProjectConfiguration -PpluginVersion=${{ steps.version.outputs.plugin_version }} --no-daemon
+
+      - name: Prepare release asset
+        id: asset
+        shell: bash
+        run: |
+          shopt -s nullglob
+          files=(jbeans-plugin/build/distributions/*.zip)
+          if [ "${#files[@]}" -ne 1 ]; then
+            echo "Expected exactly one plugin ZIP, found ${#files[@]}."
+            exit 1
+          fi
+
+          asset_name="jbeans-plugin-${{ steps.version.outputs.plugin_version }}.zip"
+          cp "${files[0]}" "${asset_name}"
+          echo "asset_path=${asset_name}" >> "$GITHUB_OUTPUT"
+
+      - name: Create GitHub release
+        uses: softprops/action-gh-release@v2
+        with:
+          name: JBeans Plugin v${{ steps.version.outputs.plugin_version }}
+          files: ${{ steps.asset.outputs.asset_path }}
+          generate_release_notes: true

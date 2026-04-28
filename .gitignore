@@ -1,15 +1,65 @@
 # Gradle
 .gradle/
+.gradle-local/
 build/
-agent/build/
+out/
+.kotlin/
 
 # IntelliJ IDEA
 .idea/
+.idea_modules/
 *.iml
-out/
+*.ipr
+*.iws
+.run/
 
 # IntelliJ Platform Plugin
 .intellijPlatform/
 
+# Java / Kotlin
+*.class
+*.log
+*.ctxt
+hs_err_pid*
+replay_pid*
+
+# Archives / packaged outputs
+*.zip
+*.tar
+*.tar.gz
+*.tgz
+*.jar
+*.war
+*.ear
+
+# Test / coverage
+coverage/
+reports/
+test-output/
+
+# Temp files
+tmp/
+temp/
+*.tmp
+*.swp
+*.swo
+*~
+
+# Environment / local overrides
+.env
+.env.*
+!.env.example
+local.properties
+
 # AI
 .claude/
+
+# macOS
+.DS_Store
+._*
+.Spotlight-V100
+.Trashes
+
+# Windows
+Thumbs.db
+Desktop.ini

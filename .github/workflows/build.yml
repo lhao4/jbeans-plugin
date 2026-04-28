@@ -46,7 +46,8 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: jbeans-plugin
-          path: build/distributions/*.zip
+          path: jbeans-plugin/build/distributions/*.zip
+          if-no-files-found: error
           retention-days: 7
 
   verify:
